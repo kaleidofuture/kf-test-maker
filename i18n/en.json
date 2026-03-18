@@ -61,5 +61,6 @@
   "json_imported": "Imported from JSON",
   "json_import_error": "JSON import error",
   "json_export": "JSON Export",
-  "json_export_empty": "No questions to export"
+  "json_export_empty": "No questions to export",
+  "report_issue": "Report an issue"
 }

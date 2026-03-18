@@ -61,5 +61,6 @@
   "json_imported": "JSONからインポートしました",
   "json_import_error": "JSONインポートエラー",
   "json_export": "JSONエクスポート",
-  "json_export_empty": "エクスポートする問題がありません"
+  "json_export_empty": "エクスポートする問題がありません",
+  "report_issue": "不具合を報告"
 }
