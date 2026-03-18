@@ -189,13 +189,13 @@ def generate_test_pdf(questions: list[dict], title: str, include_answers: bool) 
                 pdf.add_page()
 
             pdf.set_font(font_name, size=12)
-            pts = q.get("points", 10)
+            pts = int(q.get("points", 10) or 10)
             question_text = f"{t('question_prefix')} {num}. {q['question']}  ({pts}{t('points_unit')})"
             pdf.multi_cell(0, 7, question_text)
             pdf.ln(2)
 
             pdf.set_font(font_name, size=11)
-            choices = [q.get("choice_a", ""), q.get("choice_b", ""), q.get("choice_c", ""), q.get("choice_d", "")]
+            choices = [str(q.get("choice_a", "") or ""), str(q.get("choice_b", "") or ""), str(q.get("choice_c", "") or ""), str(q.get("choice_d", "") or "")]
             labels = ["A", "B", "C", "D"]
 
             for label, choice in zip(labels, choices):
@@ -210,7 +210,7 @@ def generate_test_pdf(questions: list[dict], title: str, include_answers: bool) 
 
             pdf.set_text_color(0, 0, 0)
 
-            if include_answers and q.get("explanation", "").strip():
+            if include_answers and str(q.get("explanation", "") or "").strip():
                 pdf.ln(2)
                 pdf.set_font(font_name, size=10)
                 pdf.set_text_color(0, 100, 0)
@@ -282,8 +282,8 @@ def generate_answer_sheet_pdf(questions: list[dict], title: str) -> bytes:
             if pdf.get_y() > 260:
                 pdf.add_page()
 
-            pts = q.get("points", 10)
-            has_choices = any(q.get(f"choice_{c}", "").strip() for c in ["a", "b", "c", "d"])
+            pts = int(q.get("points", 10) or 10)
+            has_choices = any(str(q.get(f"choice_{c}", "")).strip() for c in ["a", "b", "c", "d"])
 
             pdf.set_font(font_name, size=11)
             pdf.cell(40, 8, f"{t('question_prefix')} {num}  ({pts}{t('points_unit')})", new_x="END", new_y="TOP")
@@ -489,8 +489,13 @@ if st.session_state.questions:
         key="question_editor",
     )
 
-    # Sync back edited data
-    st.session_state.questions = edited_df.to_dict("records")
+    # Sync back edited data — clean NaN values from data_editor
+    _raw_records = edited_df.to_dict("records")
+    for _rec in _raw_records:
+        for _k, _v in _rec.items():
+            if isinstance(_v, float) and pd.isna(_v):
+                _rec[_k] = "" if _k != "points" else 10
+    st.session_state.questions = [r for r in _raw_records if str(r.get("question", "")).strip()]
 
     # --- Difficulty Analysis (Japanese metrics) ---
     st.markdown("---")
@@ -498,11 +503,12 @@ if st.session_state.questions:
 
     analyses = []
     for i, q in enumerate(st.session_state.questions, 1):
-        if q.get("question", "").strip():
-            full_text = q["question"]
+        if str(q.get("question", "") or "").strip():
+            full_text = str(q["question"])
             for c in ["choice_a", "choice_b", "choice_c", "choice_d"]:
-                if q.get(c, "").strip():
-                    full_text += " " + q[c]
+                choice_val = str(q.get(c, "") or "")
+                if choice_val.strip():
+                    full_text += " " + choice_val
             analysis = analyze_difficulty(full_text)
             analysis["number"] = i
             analysis["question_preview"] = q["question"][:50] + ("..." if len(q["question"]) > 50 else "")
