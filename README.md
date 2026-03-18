@@ -1,3 +1,14 @@
+---
+title: kf-test-maker
+emoji: 🚀
+colorFrom: green
+colorTo: blue
+sdk: streamlit
+sdk_version: 1.44.1
+app_file: app.py
+pinned: false
+---
+
 # KF-TestMaker
 
 > テスト問題を作成し、難易度分析付きPDFを生成するアプリ。
