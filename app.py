@@ -588,4 +588,4 @@ else:
     st.info(t("no_questions_yet"))
 
 # --- Footer ---
-render_footer(libraries=["fpdf2"])
+render_footer(libraries=["fpdf2"], repo_name="kf-test-maker")
